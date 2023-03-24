@@ -12,46 +12,36 @@ clean_exit() {
 #voices=(cmu_us_awb)
 voices=(what_do_you_know_about_sports whats_the_high_today whats_the_price_of_bitcoin when_did_Snapchat_go_public)
 
+:<<'END'
 # Prompt for data directory paths
-datadirname="/home/aisec/Desktop/second_AISec-VoiceFingerprinting-new_automated-voice-command-traffic-collection-main-main/dataset_dir"
-dataset_dir=$datadirname
-#while read -p "Enter the dataset directory [current_dataset]: " dataset_dir && dataset_dir=${dataset_dir:-current_dataset} && [ ! -d $dataset_dir ]; do
-  #echo "Directory doesn't exist"
-#done
+while read -p "Enter the dataset directory [current_dataset]: " dataset_dir && dataset_dir=${dataset_dir:-current_dataset} && [ ! -d $dataset_dir ]; do
+  echo "Directory doesn't exist"
+done
 echo -e "Using directory $dataset_dir\n"
-
-commanddirname="/home/aisec/Desktop/second_AISec-VoiceFingerprinting-new_automated-voice-command-traffic-collection-main-main/dataset_dir/commands"
-command_dir=$commanddirname
-#while read -p "Enter the command directory [$dataset_dir/commands]: " command_dir && command_dir=${command_dir:-$dataset_dir/commands} && [ ! -d $command_dir ]; do
-  #echo "Directory doesn't exist"
-#done
+while read -p "Enter the command directory [$dataset_dir/commands]: " command_dir && command_dir=${command_dir:-$dataset_dir/commands} && [ ! -d $command_dir ]; do
+  echo "Directory doesn't exist"
+done
 echo -e "Using directory $command_dir\n"
-
-wakeworddirname="/home/aisec/Desktop/second_AISec-VoiceFingerprinting-new_automated-voice-command-traffic-collection-main-main/dataset_dir/wake_words"
-wake_word_dir=$wakeworddirname
-#while read -p "Enter the wake word directory [$dataset_dir/wake_words]: " wake_word_dir && wake_word_dir=${wake_word_dir:-$dataset_dir/wake_words} && [ ! -d $wake_word_dir ]; do
-  #echo "Directory doesn't exist"
-#done
+while read -p "Enter the wake word directory [$dataset_dir/wake_words]: " wake_word_dir && wake_word_dir=${wake_word_dir:-$dataset_dir/wake_words} && [ ! -d $wake_word_dir ]; do
+  echo "Directory doesn't exist"
+done
 echo -e "Using directory $wake_word_dir\n"
 
 # Prompt for command subdirectory
 PS3="Select the command subdirectory to use: "
-command_subdirs= $command_dir/*
-echo -e "Using ALL subdirectories\n"
-  
-#select command_subdirs in $command_dir/* "ALL"; do
-  #case $command_subdirs in
-  #ALL)
-    #command_subdirs=$command_dir/*
-    #echo -e "Using ALL subdirectories\n"
-    #break
-    #;;
-  #*)
-    #echo -e "Using subdirectory $command_subdirs\n"
-    #break
-    #;;
-  #esac
-#done
+select command_subdirs in $command_dir/* "ALL"; do
+  case $command_subdirs in
+  ALL)
+    command_subdirs=$command_dir/*
+    echo -e "Using ALL subdirectories\n"
+    break
+    ;;
+  *)
+    echo -e "Using subdirectory $command_subdirs\n"
+    break
+    ;;
+  esac
+done
 
 # Prompt for wake word file
 PS3="Select the wake word file to use: "
@@ -64,6 +54,24 @@ select wake_word_file in $wake_word_dir/*; do
   esac
 done
 
+END
+
+#while dataset_dir && dataset_dir=${dataset_dir:-current_dataset} && [ ! -d $dataset_dir ]; do
+#dataset_dir="$dataset_dir:/dataset_dir/commands"; 
+#echo "dataset_dir done"
+#command_subdirs="$dataset_dir:/dataset_dir/commands/what_do_you_know_about_sports";
+#echo "command_subdirs done"
+
+datadirname="/home/aisec/Desktop/AISEC/data-collection-main/dataset_dir"
+dataset_dir=$datadirname
+commanddirname="/home/aisec/Desktop/AISEC/data-collection-main/dataset_dir/commands"
+command_dir=$commanddirname
+wakeworddirname="/home/aisec/Desktop/AISEC/data-collection-main/dataset_dir/wake_words"
+wake_word_dir=$wakeworddirname
+
+PS3="Select the command&wakeword subdirectory to use"
+command_subdirs=$command_dir/*
+wake_word_file=$wake_word_dir/*
 
 #read -p "Enter the IP address of the device [192.168.1.2]: " ip_addr]
 #ip_addr=${ip_addr:-192.168.0.7}
@@ -83,7 +91,7 @@ for voice in ${voices[@]}; do
     for variant_file in $command_subdir/${voice}; do
       echo -e "for3"
       # Start the capture
-      echo -e "\nCapturing $command_subdir/${voice}_out$(printf '%03d' $variant).pcap\n"
+      echo -e "\nCapturing $command_subdir/${voice}$(printf '%03d' $variant).pcap\n"
       sudo tcpdump -U -i wlan0 -w $command_subdir/${voice}_out$(printf "%03d" $variant).pcap &
       paplay $wake_word_file
       variant_file=${variant_file}.wav
@@ -94,10 +102,10 @@ for voice in ${voices[@]}; do
         echo -e "while"
         # Clean up from failed capture
         sudo pkill -2 tcpdump
-        sudo rm "$command_subdir/${voice}_out$(printf "%03d" $variant)"*
+        sudo rm "$command_subdir/${voice}$(printf "%03d" $variant)"*
 
         # Start the redo capture
-        echo -e "\nCapturing $command_subdir/${voice}_out$(printf '%03d' $variant).pcap\n"
+        echo -e "\nCapturing $command_subdir/${voice}$(printf '%03d' $variant).pcap\n"
         sudo tcpdump -U -i wlan0 -w $command_subdir/${voice}_out$(printf "%03d" $variant).pcap &
         paplay $wake_word_file
         paplay $variant_file
