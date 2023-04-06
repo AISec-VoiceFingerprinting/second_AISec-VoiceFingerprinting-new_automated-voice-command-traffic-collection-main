@@ -26,7 +26,7 @@ def file_rename(data_type):
         for file_name in range(1,101):
             try:
                 old_file_name = str(file_name) + ".pcap"
-                new_file_name = str(file_name) + "_" + str(instance) + "_" + rasp_num + ".pcap"
+                new_file_name = str(file_name) + "_" + str(instance) + "_" + rasp_num + ".pcap"    ######################################이거 instance $3d로 됤 수 있게 수정
                 os.rename(old_file_name, new_file_name)
                 old_wav_name = str(file_name) + ".wav"
                 new_wav_name = str(file_name) + "_" + str(instance) + "_" + rasp_num + ".wav"
@@ -35,7 +35,7 @@ def file_rename(data_type):
                 print("fail to change " + str(file_name))
     
     elif data_type==0:   # unmonitored
-        for file_name in range(101,151):
+        for file_name in range(301,351):
             try:
                 old_file_name = str(file_name) + ".pcap"
                 new_file_name = str(file_name) + "_" + str(instance) + "_" + rasp_num + ".pcap"
@@ -83,11 +83,15 @@ for batch in range(4):
     for set in range(28):
         ''' repeat 3 times for monitored commands -> call shell script for monitored record & rename all file '''
         for mon_repeat in range(3): 
-            os.system('bash record_mon.sh')
+            #os.system('bash record_mon.sh')
+            cmd = 'bash record_mon.sh'
+            zresult = subprocess.run(cmd, shell=True, text=True, check=True)
             file_rename(1)
 
         ''' repeat 1 time for unmonitored commands-> call shell script for unmonitored record & rename all file '''
-        os.system('bash record_unmon.sh')
+        #os.system('bash record_unmon.sh')
+        cmd = 'bash record_unmon.sh'
+        zresult = subprocess.run(cmd, shell=True, text=True, check=True)
         file_rename(0)
 
     ''' make zip file & send to server -> remove all file in raspberry pi '''
