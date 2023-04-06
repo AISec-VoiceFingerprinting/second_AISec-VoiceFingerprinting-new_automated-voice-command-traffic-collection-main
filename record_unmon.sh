@@ -16,7 +16,7 @@ voices=618
 # Prompt for data directory paths (이거는 local 주소로 바꿔야해요)
 datadirname="/data/VFP/dataset_dir/commands"
 dataset_dir=$datadirname
-commanddirname="/data/VFP/dataset_dir/commands/input/unmonitored"
+commanddirname="/data/VFP/dataset_dir/commands/input/unmonitored"   #이거 unmonitored거로 적용      ######################################
 command_dir=$commanddirname
 wakeworddirname="/data/VFP/dataset_dir/commands/wake_words"
 wake_word_dir=$wakeworddirname
@@ -39,14 +39,14 @@ for voice in ${voices}; do
     # For each variant file of current voice in current command subdirectory
     for variant_file in $command_subdir/${voice}; do
       # Start the capture
-      echo -e "\nCapturing $command_subdir/${voice}$(printf '%03d' $variant).pcap\n"
-      sudo tcpdump -U -i wlan0 -w $command_subdir/${voice}_$(printf "%03d" $variant)_${rasp_num}.pcap &
+      echo -e "\nCapturing $command_subdir/${voice}$(printf '%03d' $variant).pcap\n"  #_$(printf "%03d" $variant)_${rasp_num}이거 뺴고 'command 숫자.pcap' 형태로
+      sudo tcpdump -U -i wlan0 -w $command_subdir/${voice}.pcap &
       paplay $wake_word_file
       variant_file=${variant_file}.wav
       paplay $variant_file
 
       # If the capture times out (no response heard after 60 seconds), then redo the capture
-      while ! timeout --foreground 60s sox -d $command_subdir/${voice}_$(printf "%03d" $variant)_${rasp_num}.wav silence 1 0.1 5% 1 3.0 5%; do
+      while ! timeout --foreground 60s sox -d $command_subdir/${voice}.wav silence 1 0.1 5% 1 3.0 5%; do  #_$(printf "%03d" $variant)_${rasp_num}이거 뺴고 'command 숫자.wav' 형태로
         echo -e "while"
         # Clean up from failed capture
         sudo pkill -2 tcpdump
@@ -54,7 +54,7 @@ for voice in ${voices}; do
 
         # Start the redo capture
         echo -e "\nCapturing $command_subdir/${voice}$(printf '%03d' $variant).pcap\n"
-        sudo tcpdump -U -i wlan0 -w $command_subdir/${voice}_$(printf "%03d" $variant)_${rasp_num}.pcap &
+        sudo tcpdump -U -i wlan0 -w $command_subdir/${voice}.pcap & #_$(printf "%03d" $variant)_${rasp_num}이거 뺴고 'command 숫자.pcap' 형태로
         paplay $wake_word_file
         paplay $variant_file
       done
